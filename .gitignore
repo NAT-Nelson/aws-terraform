@@ -1,0 +1,9 @@
+# Ignore Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+
+# Ignore .terraform directory which holds the module and provider cache
+.terraform/
+
+# Ignore Terraform lock file
+.terraform.lock.hcl
