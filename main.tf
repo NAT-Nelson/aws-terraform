@@ -2,6 +2,9 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Get current AWS region
+data "aws_region" "current" {}
+
 # IAM role and policies for Lambda
 resource "aws_iam_role" "lambda_role" {
   name               = "terraform_aws_lambda_role"
@@ -61,7 +64,7 @@ resource "aws_lambda_function" "terraform_lambda_func" {
   filename      = "${path.module}/python/hello-python.zip"
   function_name = "Jhooq-Lambda-Function"
   role          = aws_iam_role.lambda_role.arn
-  # handler       = "hello-python.lambda_handler" # Uncomment if using a handler function
+  handler       = "hello-python.lambda_handler" # Make sure this matches the filename and function name
   runtime       = "python3.8"
   depends_on    = [aws_iam_role_policy_attachment.attach_iam_policy_to_iam_role]
 }
@@ -97,12 +100,12 @@ resource "aws_api_gateway_method" "get_method" {
 
 # Integration between API Gateway and Lambda
 resource "aws_api_gateway_integration" "lambda_integration" {
-  rest_api_id = aws_api_gateway_rest_api.lambda_api.id
-  resource_id = aws_api_gateway_resource.lambda_api_resource.id
-  http_method = aws_api_gateway_method.get_method.http_method
-  type        = "AWS_PROXY"
+  rest_api_id             = aws_api_gateway_rest_api.lambda_api.id
+  resource_id             = aws_api_gateway_resource.lambda_api_resource.id
+  http_method             = aws_api_gateway_method.get_method.http_method
+  type                    = "AWS_PROXY"
   integration_http_method = "POST"
-  uri         = aws_lambda_function.terraform_lambda_func.invoke_arn
+  uri                     = aws_lambda_function.terraform_lambda_func.invoke_arn
 }
 
 # Deploy the API Gateway
@@ -114,5 +117,5 @@ resource "aws_api_gateway_deployment" "lambda_api_deployment" {
 
 # Output the API Gateway invoke URL
 output "api_gateway_invoke_url" {
-  value = aws_api_gateway_deployment.lambda_api_deployment.invoke_url
+  value = "https://${aws_api_gateway_rest_api.lambda_api.id}.execute-api.${data.aws_region.current.name}.amazonaws.com/prod/lambda"
 }

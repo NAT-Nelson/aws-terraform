@@ -1,6 +1,9 @@
-# def lambda_handler(event, context):
-#    message = 'Hello {} !'.format(event['key1'])
-#    return {
-#        'message' : message
-#    }
-print("Hello World!")
+def lambda_handler(event, context):
+    # Return a properly formatted JSON response
+    return {
+        'statusCode': 200,
+        'body': '{"message": "Hello, World!"}',
+        'headers': {
+            'Content-Type': 'application/json'
+        }
+    }
